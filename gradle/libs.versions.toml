@@ -14,6 +14,10 @@ navigationFragmentKtx = "2.8.9"
 navigationUiKtx = "2.8.9"
 
 [libraries]
+room-runtime = { module = "androidx.room:room-runtime", version = "2.6.1" }
+room-ktx = { module = "androidx.room:room-ktx", version = "2.6.1" }
+room-compiler = { module = "androidx.room:room-compiler", version = "2.6.1" }
+
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

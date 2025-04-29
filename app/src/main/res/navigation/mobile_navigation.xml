@@ -3,23 +3,40 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@id/nav_home">
 
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.rentalcarmanager.ui.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/nav_cars"
+        android:name="com.example.rentalcarmanager.ui.cars.CarsFragment"
+        android:label="Cars"
+        tools:layout="@layout/fragment_cars" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.example.rentalcarmanager.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_customers"
+        android:name="com.example.rentalcarmanager.ui.customers.CustomersFragment"
+        android:label="@string/menu_customers"
+        tools:layout="@layout/fragment_customers" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.example.rentalcarmanager.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_rentals"
+        android:name="com.example.rentalcarmanager.ui.rentals.RentalsFragment"
+        android:label="@string/menu_rentals"
+        tools:layout="@layout/fragment_rentals" />
+    <fragment
+        android:id="@+id/nav_branches"
+        android:name="com.example.rentalcarmanager.ui.branches.BranchesFragment"
+        android:label="Branches"
+        tools:layout="@layout/fragment_branches" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.rentalcarmanager.ui.settings.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" />
+
 </navigation>
