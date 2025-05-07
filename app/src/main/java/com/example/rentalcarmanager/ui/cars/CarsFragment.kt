@@ -5,15 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.rentalcarmanager.R
-import com.example.rentalcarmanager.data.local.DatabaseProvider
 import com.example.rentalcarmanager.data.local.entity.Cars
-import com.example.rentalcarmanager.data.local.repository.CarsRepo
+import com.example.rentalcarmanager.data.local.enums.CarCategory
+import com.example.rentalcarmanager.data.local.repository.BranchesRepo
 import com.example.rentalcarmanager.databinding.FragmentCarsBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -37,85 +41,164 @@ class CarsFragment : Fragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    CarsRepo.init(DatabaseProvider.getDatabase(requireContext()).daoCars())
-    carAdapter = CarsAdapter { selectedCar ->
-      showAddCarDialog(selectedCar)
-    }
+
+
+
+    // Ο adapter που χειρίζεται το RecyclerView, με δυνατότητα click για επεξεργασία
+    carAdapter = CarsAdapter(
+      onItemClick = { selectedCar ->
+        upsertCar(selectedCar)
+      },
+      onDeleteClick = { selectedCar ->
+        deleteCar(selectedCar)
+      }
+    )
 
     setupRecyclerView()
     observeCars()
     setupButton()
   }
 
- private fun observeCars() {
-   viewLifecycleOwner.lifecycleScope.launch {
+  // Συλλογή όλων των αυτοκινήτων από το ViewModel
+  private fun observeCars() {
+    viewLifecycleOwner.lifecycleScope.launch {
       viewModel.allCars.collectLatest { cars ->
         carAdapter.submitList(cars)
       }
     }
- }
+  }
 
+  // Εμφάνιση των αυτοκινήτων σε Grid 2 στηλών
   private fun setupRecyclerView() {
     binding.recyclerView.apply {
-      layoutManager = LinearLayoutManager(requireContext())
+      layoutManager = GridLayoutManager(requireContext(), 2)
       adapter = carAdapter
     }
-
   }
+
+  // Κουμπί για προσθήκη νέου αυτοκινήτου
   private fun setupButton() {
     binding.buttonAddCustomer.setOnClickListener {
-      showAddCarDialog()
+      upsertCar()
     }
   }
-
-
 
   override fun onDestroyView() {
     super.onDestroyView()
     _binding = null
   }
 
-  private fun showAddCarDialog(car: Cars? = null) {
+  private fun upsertCar(car: Cars? = null) {
     context?.let { safeContext ->
-      val dialogView = LayoutInflater.from(safeContext).inflate(R.layout.add_car_dialog, null)
+      val dialogView = LayoutInflater.from(safeContext).inflate(R.layout.upsert_car, null)
 
+      // References to views
       val brandEditText = dialogView.findViewById<EditText>(R.id.editTextBrand)
       val modelEditText = dialogView.findViewById<EditText>(R.id.editTextModel)
       val plateEditText = dialogView.findViewById<EditText>(R.id.editTextLicensePlate)
-      val categoryEditText = dialogView.findViewById<EditText>(R.id.editTextCategory)
+      val categoryEditText = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteCategory)
+      val branchDropdown = dialogView.findViewById<AutoCompleteTextView>(R.id.autoCompleteBranch)
+      val buttonSave = dialogView.findViewById<Button>(R.id.buttonSaveCar)
+      val buttonCancel = dialogView.findViewById<Button>(R.id.buttonCancelCar)
 
+      // Load car categories from enum
+      val categories = CarCategory.values().map { it.name }
+      val categoryAdapter = ArrayAdapter(
+        safeContext,
+        android.R.layout.simple_dropdown_item_1line,
+        categories
+      )
+      categoryEditText.setAdapter(categoryAdapter)
+      categoryEditText.setOnClickListener {
+        categoryEditText.requestFocus()
+        categoryEditText.showDropDown()
+      }
+
+      var selectedBranchId = car?.branchId ?: -1
+
+      // Load branches
+      lifecycleScope.launch {
+        BranchesRepo.getAllBranches().collectLatest { branches ->
+          val branchNames = branches.map { it.name }
+          branchDropdown.setAdapter(ArrayAdapter(safeContext, android.R.layout.simple_dropdown_item_1line, branchNames))
+          branchDropdown.setOnItemClickListener { _, _, pos, _ ->
+            selectedBranchId = branches[pos].id
+          }
+
+          // Pre-fill if editing
+          if (car != null) {
+            val current = branches.find { it.id == car.branchId }
+            current?.let {
+              branchDropdown.setText(it.name, false)
+            }
+          }
+        }
+      }
+
+      // Pre-fill fields if editing
       car?.let {
         brandEditText.setText(it.brand)
         modelEditText.setText(it.model)
         plateEditText.setText(it.licensePlate)
-        categoryEditText.setText(it.category)
+        categoryEditText.setText(it.category, false)
       }
 
+      // Create dialog
       val dialog = AlertDialog.Builder(safeContext)
-        .setTitle(if (car == null) "Προσθήκη Αυτοκινήτου" else "Επεξεργασία Αυτοκινήτου")
         .setView(dialogView)
-        .setPositiveButton(if (car == null) "Προσθήκη" else "Αποθήκευση") { _, _ ->
-          val brand = brandEditText.text.toString()
-          val model = modelEditText.text.toString()
-          val plate = plateEditText.text.toString()
-          val category = categoryEditText.text.toString()
-
-          if (brand.isNotBlank() && model.isNotBlank() && plate.isNotBlank() && category.isNotBlank()) {
-            val newCar = Cars(
-              id = car?.id ?: 0,
-              brand = brand,
-              model = model,
-              licensePlate = plate,
-              category = category,
-              branchId = 1  // ή ό,τι έχεις για branchId
-            )
-            viewModel.upsertCar(newCar)
-          }
-        }
-        .setNegativeButton("Άκυρο", null)
         .create()
+
+      buttonCancel.setOnClickListener {
+        dialog.dismiss()
+      }
+
+      buttonSave.setOnClickListener {
+        val brand = brandEditText.text.toString()
+        val model = modelEditText.text.toString()
+        val plate = plateEditText.text.toString()
+        val category = categoryEditText.text.toString()
+
+        if (brand.isNotBlank() && model.isNotBlank() && plate.isNotBlank() && category.isNotBlank() && selectedBranchId != -1) {
+          val newCar = Cars(
+            id = car?.id ?: 0,
+            brand = brand,
+            model = model,
+            licensePlate = plate,
+            category = category,
+            branchId = selectedBranchId
+          )
+          viewModel.upsertCar(newCar)
+          dialog.dismiss()
+        } else {
+          Toast.makeText(requireContext(), "Συμπλήρωσε όλα τα πεδία", Toast.LENGTH_SHORT).show()
+        }
+      }
 
       dialog.show()
     }
   }
+
+  private fun deleteCar(car: Cars) {
+    val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.delete_car, null)
+
+    val dialog = AlertDialog.Builder(requireContext())
+      .setView(dialogView)
+      .create()
+
+    val buttonDelete = dialogView.findViewById<Button>(R.id.buttonDelete)
+    val buttonCancel = dialogView.findViewById<Button>(R.id.buttonCancel)
+
+    buttonDelete.setOnClickListener {
+      viewModel.deleteCar(car)
+      Toast.makeText(requireContext(), "Car deleted", Toast.LENGTH_SHORT).show()
+
+    }
+
+    buttonCancel.setOnClickListener {
+      dialog.dismiss()
+    }
+
+    dialog.show()
+  }
 }
+

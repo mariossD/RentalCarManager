@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "984063812218",
+    "project_id": "rentalcarmanager",
+    "storage_bucket": "rentalcarmanager.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984063812218:android:6316209c63cf61a95e91c3",
+        "android_client_info": {
+          "package_name": "com.example.rentalcarmanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5_avRUQNvm5VBughOSAygZSP_eOqNh-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

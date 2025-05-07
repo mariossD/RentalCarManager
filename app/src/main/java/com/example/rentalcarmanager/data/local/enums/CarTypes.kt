@@ -4,6 +4,8 @@ enum class CarCategory (val category:String){
   SUV("SUV"),
   SEDAN("Sedan"),
   HATCHBACK("Hatchback"),
-  COUPE("Coupe"),ELECTRIC("Electric"),
-  HYBRID("Hybrid")
+  COUPE("Coupe"),
+  ELECTRIC("Electric"),
+  HYBRID("Hybrid"),
+  SUPERCAR("Supercar")
 }

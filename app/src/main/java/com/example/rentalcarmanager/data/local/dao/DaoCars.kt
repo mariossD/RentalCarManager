@@ -24,5 +24,9 @@ interface DaoCars {
   @Query("SELECT * FROM cars WHERE branchId = :branchId ORDER BY brand ASC")
   fun getCarsByBranch(branchId: Int): Flow<List<Cars>>
 
+  @Query("SELECT * FROM cars WHERE brand=:brand ORDER BY brand ASC")
+  fun getCarsByBrand(brand:String): Flow<List<Cars>>
 
+  @Query("SELECT * FROM cars WHERE category = :category ORDER BY brand ASC")
+  fun getCarsByCategory(category: String): Flow<List<Cars>>
 }

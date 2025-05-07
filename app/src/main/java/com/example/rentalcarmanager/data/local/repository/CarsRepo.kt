@@ -12,6 +12,12 @@ object CarsRepo {
     this.carsDao = carsDao
   }
 
+  fun getCarsByCategory(category: String): Flow<List<Cars>> = carsDao.getCarsByCategory(category)
+
+  fun getCarsByBrand(brand: String): Flow<List<Cars>> = carsDao.getCarsByBrand(brand)
+
+  fun getCarsByBranch(branchId: Int): Flow<List<Cars>> = carsDao.getCarsByBranch(branchId)
+
   fun getAllCars(): Flow<List<Cars>> = carsDao.getAllCars()
 
   suspend fun upsertCar(car: Cars) {

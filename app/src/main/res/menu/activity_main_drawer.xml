@@ -7,27 +7,27 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_menu_home"
-            android:title="@string/menu_home" />
+            android:title="@string/draw_home" />
         <item
             android:id="@+id/nav_cars"
             android:icon="@drawable/ic_menu_car"
-            android:title="@string/menu_cars" />
+            android:title="@string/draw_car" />
         <item
             android:id="@+id/nav_customers"
             android:icon="@drawable/ic_menu_customers"
-            android:title="@string/menu_customers" />
+            android:title="@string/draw_customer" />
         <item
             android:id="@+id/nav_rentals"
             android:icon="@drawable/ic_menu__car_rental"
-            android:title="@string/menu_rentals" />
+            android:title="@string/draw_rental" />
         <item
             android:id="@+id/nav_branches"
             android:icon="@drawable/ic_menu_branches"
-            android:title="@string/menu_branches"/>
+            android:title="@string/draw_branch"/>
         <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_menu_settings"
-            android:title="@string/menu_settings" />
+            android:id="@+id/nav_queries"
+            android:icon="@drawable/ic_menu_search"
+            android:title="@string/draw_queries" />
 
     </group>
 </menu>

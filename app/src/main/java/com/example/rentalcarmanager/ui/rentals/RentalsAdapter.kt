@@ -2,44 +2,64 @@ package com.example.rentalcarmanager.ui.rentals
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rentalcarmanager.data.local.entity.Rentals
-import com.example.rentalcarmanager.databinding.ItemRentalBinding
+import com.example.rentalcarmanager.data.remote.RentalFirestore
+import com.example.rentalcarmanager.databinding.InfoRentalBinding
 
+// Adapter for displaying rental items in a RecyclerView
 class RentalsAdapter(
-  private val onItemClick: (Rentals) -> Unit
-) : ListAdapter<Rentals, RentalsAdapter.RentalViewHolder>(RentalDiffCallback()) {
+  private val carMap: Map<Int, String>,               // Maps carId to car display name
+  private val customerMap: Map<Int, String>,          // Maps customerId to customer name
+  private val branchMap: Map<Int, String>,            // Maps branchId to branch name
+  private val onItemClick: (RentalFirestore) -> Unit, // Callback when an item is clicked (for edit)
+  private val onDeleteClick: (RentalFirestore) -> Unit // Callback when delete button is clicked
+) : RecyclerView.Adapter<RentalsAdapter.RentalViewHolder>() {
+
+  private val rentals = mutableListOf<RentalFirestore>() // Internal list of rentals
+
+  // Updates the list and refreshes the RecyclerView
+  fun submitList(newList: List<RentalFirestore>) {
+    rentals.clear()
+    rentals.addAll(newList)
+    notifyDataSetChanged()
+  }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RentalViewHolder {
-    val binding = ItemRentalBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    val binding = InfoRentalBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     return RentalViewHolder(binding)
   }
 
   override fun onBindViewHolder(holder: RentalViewHolder, position: Int) {
-    val rental = getItem(position)
-    holder.bind(rental)
-    holder.itemView.setOnClickListener {
-      onItemClick(rental)
-    }
+    holder.bind(rentals[position])
   }
 
-  class RentalViewHolder(private val binding: ItemRentalBinding) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(rental: Rentals) {
-      binding.textRentalCar.text = "Car ID: ${rental.carId}"
-      binding.textRentalCustomer.text = "Customer ID: ${rental.customerId}"
-      binding.textRentalDates.text = "From: ${rental.rentalDate} To: ${rental.returnDate}"
-    }
-  }
+  override fun getItemCount(): Int = rentals.size
 
-  class RentalDiffCallback : DiffUtil.ItemCallback<Rentals>() {
-    override fun areItemsTheSame(oldItem: Rentals, newItem: Rentals): Boolean {
-      return oldItem.id == newItem.id
-    }
+  // ViewHolder class responsible for binding rental data to the layout
+  inner class RentalViewHolder(private val binding: InfoRentalBinding) :
+    RecyclerView.ViewHolder(binding.root) {
 
-    override fun areContentsTheSame(oldItem: Rentals, newItem: Rentals): Boolean {
-      return oldItem == newItem
+    fun bind(rental: RentalFirestore) {
+      // Get display strings using the maps
+      val carText = carMap[rental.carId] ?: "Unknown"
+      val customerText = customerMap[rental.customerId] ?: "Unknown"
+      val branchText = branchMap[rental.branchId] ?: "Unknown"
+
+      // Set the data to the views
+      binding.textRentalCar.text = "Car: $carText"
+      binding.textRentalCustomer.text = "Customer: $customerText"
+      binding.textRentalBranch.text = "Branch: $branchText"
+      binding.textRentalDates.text = "${rental.rentalDate} ➜ ${rental.returnDate}"
+
+      // Handle delete button click
+      binding.buttonDelete.setOnClickListener {
+        onDeleteClick(rental)
+      }
+
+      // Handle entire item click (for edit)
+      binding.root.setOnClickListener {
+        onItemClick(rental)
+      }
     }
   }
 }

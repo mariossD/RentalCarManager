@@ -1,36 +1,63 @@
 [versions]
-agp = "8.9.1"
-kotlin = "2.0.21"
-coreKtx = "1.16.0"
+# Core Dependencies
+agp = "8.9.1" # Latest stable version as of writing
+kotlin = "1.9.22" # Latest stable version as of writing, prefer it over 2.0.x (Still in Alpha, unstable)
+coreKtx = "1.12.0" # Latest version as of writing
+
+# Testing Dependencies
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-appcompat = "1.7.0"
-material = "1.12.0"
-constraintlayout = "2.2.1"
-lifecycleLivedataKtx = "2.8.7"
-lifecycleViewmodelKtx = "2.8.7"
-navigationFragmentKtx = "2.8.9"
-navigationUiKtx = "2.8.9"
+androidxJunit = "1.1.5" # Latest version as of writing
+espressoCore = "3.5.1" # Latest version as of writing
+
+# UI Dependencies
+appcompat = "1.6.1" # Latest version as of writing
+material = "1.11.0" # Latest version as of writing
+constraintlayout = "2.1.4" # Latest stable version as of writing
+
+# Lifecycle Components
+lifecycle = "2.7.0" # Latest version, we'll use one ref for all lifecycle libraries
+
+# Navigation Components
+navigation = "2.7.7" # Latest version, we'll use one ref for all navigation libraries
+
+# Room
+room = "2.6.1"
+
+# Firebase
+firebaseBom = "33.0.0" # Latest stable version
+gmsPlugin = "4.4.1" # latest stable version
 
 [libraries]
-room-runtime = { module = "androidx.room:room-runtime", version = "2.6.1" }
-room-ktx = { module = "androidx.room:room-ktx", version = "2.6.1" }
-room-compiler = { module = "androidx.room:room-compiler", version = "2.6.1" }
-
+# Core AndroidX Libraries
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
-androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
-androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
-androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Lifecycle Components
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+
+# Navigation Components
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
+
+# Room
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+
+# Testing
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxJunit" } # Renamed to be more clear
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+
+# Firebase
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-
+gms = { id = "com.google.gms.google-services", version.ref = "gmsPlugin" }

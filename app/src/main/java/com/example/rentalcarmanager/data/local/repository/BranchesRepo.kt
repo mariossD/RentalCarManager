@@ -20,6 +20,10 @@ object BranchesRepo {
     daoBranches.upsertBranch(branch)
   }
 
+  suspend fun deleteBranchesById(branchId: Int){
+    daoBranches.deleteById(branchId)
+  }
+
   suspend fun deleteBranches(branch: Branches){
     daoBranches.deleteBranch(branch)
   }

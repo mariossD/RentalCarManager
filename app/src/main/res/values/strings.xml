@@ -7,12 +7,28 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="fab_button">Add</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_cars">Cars</string>
-    <string name="menu_customers">Customers</string>
-    <string name="menu_rentals">Rentals</string>
-    <string name="menu_branches">Branches</string>
-    <string name="menu_settings">Settings</string>
+
+    <string name="draw_car">Cars</string>
+    <string name="draw_branch">Branches</string>
+    <string name="draw_customer">Customers</string>
+    <string name="draw_rental">Rentals</string>
+    <string name="draw_queries">Queries</string>
+    <string name="draw_home">Home</string>
+
+
+    <string name="room_button">Room Queries</string>
+    <string name="search_button">Search</string>
+    <string name="firebase_button">Firebase Queries</string>
+
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="delete_button">Delete</string>
+
+    <string name="insert_car">Insert Car</string>
+    <string name="insert_branch">Insert Branch</string>
+    <string name="insert_rental">Insert Rental</string>
+    <string name="insert_customer">Insert Customer</string>
+
+
 </resources>

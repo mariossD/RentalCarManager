@@ -20,4 +20,9 @@ interface DaoBranches {
   @Query("SELECT * FROM branches")
   fun getAllBranches(): Flow<List<Branches>>
 
+  @Query("DELETE FROM branches WHERE id = :branchId")
+  suspend fun deleteById(branchId: Int)
+
+
+
 }

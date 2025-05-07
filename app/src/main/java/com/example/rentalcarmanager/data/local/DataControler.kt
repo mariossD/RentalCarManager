@@ -18,6 +18,7 @@ object DatabaseProvider {
         .fallbackToDestructiveMigration()
         .build()
 
+
       INSTANCE = instance
       instance
     }
