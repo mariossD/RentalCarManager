@@ -15,7 +15,7 @@ import com.example.rentalcarmanager.data.local.entity.Customers
     Cars::class,
     Customers::class
   ],
-  version = 5,
+  version = 5, // Current schema version of the database
   exportSchema = false
 )
 abstract class RentalCarManagerDatabase: RoomDatabase() {

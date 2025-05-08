@@ -37,6 +37,13 @@
         android:id="@+id/nav_queries"
         android:name="com.example.rentalcarmanager.ui.query.QueryFragment"
         android:label="@string/draw_queries"
-        tools:layout="@layout/fragment_queries" />
+        tools:layout="@layout/fragment_query" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.rentalcarmanager.ui.settings.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" />
+
 
 </navigation>

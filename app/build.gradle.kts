@@ -38,6 +38,9 @@ android {
 }
 
 dependencies {
+ // Notification
+  implementation("androidx.core:core-ktx:1.12.0")
+
  //room dependencies
   implementation(libs.room.runtime)
   implementation(libs.room.ktx)
@@ -47,6 +50,7 @@ dependencies {
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.analytics)
   implementation(libs.firebase.firestore)
+
 // material dependencies
   implementation("com.google.android.material:material:1.11.0")
 

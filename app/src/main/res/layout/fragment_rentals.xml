@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:padding="8dp">
 
-    <!-- RecyclerView για ενοικιάσεις -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
@@ -17,7 +16,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Button για προσθήκη νέας ενοικίασης -->
     <Button
         android:id="@+id/button_add_rental"
         android:layout_width="wrap_content"

@@ -6,9 +6,6 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- First dropdown: Search type -->
-
-    <!-- Room Button -->
     <Button
         android:id="@+id/room_query"
         android:layout_width="0dp"
@@ -19,7 +16,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Firebase Button -->
     <Button
         android:id="@+id/firebase_query"
         android:layout_width="0dp"
@@ -31,7 +27,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="8dp" />
 
-    <!-- RecyclerView to display query results -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewQueries"
         android:layout_width="0dp"

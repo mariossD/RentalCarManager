@@ -33,6 +33,7 @@ class BranchesFragment : Fragment() {
     inflater: LayoutInflater, container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
+    // Inflate the layout for this fragment
     _binding = FragmentBranchesBinding.inflate(inflater, container, false)
     return binding.root
   }
@@ -40,8 +41,10 @@ class BranchesFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
+    // Initialize repository with DAO instance
     BranchesRepo.init(DatabaseProvider.getDatabase(requireContext()).daoBranches())
 
+    // Initialize adapter with click handlers
     adapter = BranchesAdapter(
       onItemClick = { selectedBranch -> upsertBranch(selectedBranch) },
       onDeleteClick = { selectedBranch -> deleteBranch(selectedBranch) }
@@ -52,6 +55,7 @@ class BranchesFragment : Fragment() {
     setupButton()
   }
 
+  // Collect and observe branch data from the ViewModel
   private fun observeBranches() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.allBranches.collectLatest { branches ->
@@ -60,6 +64,7 @@ class BranchesFragment : Fragment() {
     }
   }
 
+  // Set up RecyclerView layout and adapter
   private fun setupRecyclerView() {
     binding.recyclerView.apply {
       layoutManager = LinearLayoutManager(requireContext())
@@ -67,6 +72,7 @@ class BranchesFragment : Fragment() {
     }
   }
 
+  // Set click listener for the "Add" button
   private fun setupButton() {
     binding.buttonAddCustomer.setOnClickListener {
       upsertBranch()
@@ -78,6 +84,7 @@ class BranchesFragment : Fragment() {
     _binding = null
   }
 
+  // Show dialog to add or update a branch
   private fun upsertBranch(branch: Branches? = null) {
     val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.upsert_branch, null)
     val nameEditText = dialogView.findViewById<EditText>(R.id.editTextBranchName)
@@ -85,6 +92,7 @@ class BranchesFragment : Fragment() {
     val buttonCancel = dialogView.findViewById<Button>(R.id.buttonCancelBranch)
     val buttonSave = dialogView.findViewById<Button>(R.id.buttonSaveBranch)
 
+    // If editing, prefill the fields
     branch?.let {
       nameEditText.setText(it.name)
       locationEditText.setText(it.location)
@@ -94,10 +102,12 @@ class BranchesFragment : Fragment() {
       .setView(dialogView)
       .create()
 
+    // Cancel the dialog
     buttonCancel.setOnClickListener {
       dialog.dismiss()
     }
 
+    // Save the branch
     buttonSave.setOnClickListener {
       val name = nameEditText.text.toString()
       val location = locationEditText.text.toString()
@@ -110,13 +120,14 @@ class BranchesFragment : Fragment() {
         viewModel.upsertBranch(newBranch)
         dialog.dismiss()
       } else {
-        Toast.makeText(requireContext(), "Συμπλήρωσε όλα τα πεδία", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
       }
     }
 
     dialog.show()
   }
 
+  // Show confirmation dialog to delete a branch
   private fun deleteBranch(branch: Branches) {
     val view = LayoutInflater.from(requireContext()).inflate(R.layout.delete_branch, null)
     val buttonDelete = view.findViewById<Button>(R.id.buttonDeleteBranch)
@@ -129,7 +140,7 @@ class BranchesFragment : Fragment() {
     buttonCancel.setOnClickListener { dialog.dismiss() }
     buttonDelete.setOnClickListener {
       viewModel.deleteBranch(branch)
-      Toast.makeText(requireContext(), "Διαγράφηκε το υποκατάστημα", Toast.LENGTH_SHORT).show()
+      Toast.makeText(requireContext(), "Branch deleted", Toast.LENGTH_SHORT).show()
       dialog.dismiss()
     }
 

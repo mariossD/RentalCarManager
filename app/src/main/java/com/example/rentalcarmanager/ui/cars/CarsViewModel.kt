@@ -10,22 +10,25 @@ import kotlinx.coroutines.launch
 
 class CarsViewModel : ViewModel() {
 
-  private val repository = CarsRepo  // ➔ Χρησιμοποιούμε το object CarsRepo!
+  private val repository = CarsRepo  // Using the singleton object CarsRepo
 
-  val allCars=repository.getAllCars()
+  // Collect all cars from the repository as StateFlow for observation
+  val allCars = repository.getAllCars()
     .stateIn(
-      viewModelScope,
-      SharingStarted.WhileSubscribed(5000),
-      emptyList()
+      viewModelScope, // Lifecycle-aware scope
+      SharingStarted.WhileSubscribed(5000), // Keeps the flow active briefly when not observed
+      emptyList() // Initial empty value
     )
 
+  // Insert or update a car
   fun upsertCar(car: Cars) {
     viewModelScope.launch {
       repository.upsertCar(car)
     }
   }
 
-  fun deleteCar(car:Cars) {
+  // Delete a car
+  fun deleteCar(car: Cars) {
     viewModelScope.launch {
       repository.deleteCar(car)
     }

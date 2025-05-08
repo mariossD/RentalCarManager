@@ -13,11 +13,13 @@ class CarsAdapter(
   private val onDeleteClick: (Cars) -> Unit
 ) : ListAdapter<Cars, CarsAdapter.CarViewHolder>(CarDiffCallback()) {
 
+  // Called to create a new ViewHolder
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarViewHolder {
     val binding = InfoCarBinding.inflate(LayoutInflater.from(parent.context), parent, false)
     return CarViewHolder(binding)
   }
 
+  // Called to bind data to the ViewHolder at the given position
   override fun onBindViewHolder(holder: CarViewHolder, position: Int) {
     holder.bind(getItem(position))
   }
@@ -27,6 +29,7 @@ class CarsAdapter(
     private val binding: InfoCarBinding
   ) : RecyclerView.ViewHolder(binding.root) {
 
+    // Bind car data to views
     fun bind(car: Cars) {
       binding.textBrand.text = car.brand
       binding.textModel.text = car.model
@@ -45,7 +48,7 @@ class CarsAdapter(
     }
   }
 
-  // Callback to optimize RecyclerView updates
+  // Callback to optimize RecyclerView updates by comparing item identity and content
   class CarDiffCallback : DiffUtil.ItemCallback<Cars>() {
     override fun areItemsTheSame(oldItem: Cars, newItem: Cars): Boolean {
       return oldItem.id == newItem.id

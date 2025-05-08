@@ -4,7 +4,7 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    card_view:cardBackgroundColor="@android:color/white"
+    card_view:cardBackgroundColor="?attr/colorSurface"
     card_view:cardUseCompatPadding="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,8 +12,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:background="?attr/selectableItemBackground">
+        android:padding="12dp">
 
         <ImageButton
             android:id="@+id/buttonDeleteCar"
@@ -28,7 +27,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
-        <!-- Μάρκα -->
+        <!-- Brand -->
         <TextView
             android:id="@+id/textBrand"
             android:layout_width="0dp"
@@ -40,7 +39,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Μοντέλο -->
+        <!-- Model -->
         <TextView
             android:id="@+id/textModel"
             android:layout_width="0dp"
@@ -52,7 +51,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Πινακίδα -->
+        <!-- License Plate -->
         <TextView
             android:id="@+id/textLicensePlate"
             android:layout_width="0dp"
@@ -64,7 +63,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Κατηγορία -->
+        <!-- Category -->
         <TextView
             android:id="@+id/textCategory"
             android:layout_width="0dp"
@@ -77,8 +76,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
-
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

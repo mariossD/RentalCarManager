@@ -13,19 +13,22 @@ class CustomersViewModel() : ViewModel() {
 
   private val repository = CustomersRepo
 
+  // Collect all customers from repository as StateFlow
   val allCustomers: StateFlow<List<Customers>> = repository.getAllCustomers()
     .stateIn(
-      viewModelScope,
-      SharingStarted.WhileSubscribed(5000),
-      emptyList()
+      viewModelScope, // Scope tied to ViewModel lifecycle
+      SharingStarted.WhileSubscribed(5000), // Keeps flow active while observed
+      emptyList() // Initial state
     )
 
+  // Insert or update a customer
   fun upsertCustomer(customer: Customers) {
     viewModelScope.launch {
       repository.upsertCustomer(customer)
     }
   }
 
+  // Delete a customer
   fun deleteCustomer(customer: Customers) {
     viewModelScope.launch {
       repository.deleteCustomer(customer)

@@ -35,6 +35,7 @@ class CustomersFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
+    // Initialize adapter with click listeners
     customerAdapter = CustomersAdapter(
       onItemClick = { selectedCustomer -> upsertCustomer(selectedCustomer) },
       onDeleteClick = { selectedCustomer -> deleteCustomer(selectedCustomer) }
@@ -45,12 +46,14 @@ class CustomersFragment : Fragment() {
     setupButton()
   }
 
+  // Set up add button click
   private fun setupButton() {
     binding.buttonAddCustomer.setOnClickListener {
       upsertCustomer()
     }
   }
 
+  // Set up RecyclerView layout and adapter
   private fun setupRecyclerView() {
     binding.recyclerView.apply {
       layoutManager = LinearLayoutManager(requireContext())
@@ -58,6 +61,7 @@ class CustomersFragment : Fragment() {
     }
   }
 
+  // Collect and observe customer data
   private fun observeCustomers() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.allCustomers.collectLatest { customers ->
@@ -66,6 +70,7 @@ class CustomersFragment : Fragment() {
     }
   }
 
+  // Show dialog to add or update a customer
   private fun upsertCustomer(customer: Customers? = null) {
     val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.upsert_customer, null)
     val firstName = dialogView.findViewById<EditText>(R.id.editTextFirstName)
@@ -78,12 +83,14 @@ class CustomersFragment : Fragment() {
       .setView(dialogView)
       .create()
 
+    // Pre-fill fields if editing
     customer?.let {
       firstName.setText(it.customersName)
       idNumber.setText(it.drivelLicenseNumber)
       phone.setText(it.phoneNumber)
     }
 
+    // Save customer on button click
     buttonSave.setOnClickListener {
       val firstName = firstName.text.toString()
       val idNumber = idNumber.text.toString()
@@ -94,11 +101,12 @@ class CustomersFragment : Fragment() {
           id = customer?.id ?: 0,
           customersName = firstName,
           drivelLicenseNumber = idNumber,
-          phoneNumber = phone )
+          phoneNumber = phone
+        )
         viewModel.upsertCustomer(newCustomer)
         dialog.dismiss()
       } else {
-        Toast.makeText(requireContext(), "Συμπλήρωσε όλα τα πεδία", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
       }
     }
 
@@ -109,6 +117,7 @@ class CustomersFragment : Fragment() {
     dialog.show()
   }
 
+  // Show confirmation dialog to delete a customer
   private fun deleteCustomer(customer: Customers) {
     val view = LayoutInflater.from(requireContext()).inflate(R.layout.delete_customer, null)
     val dialog = AlertDialog.Builder(requireContext()).setView(view).create()

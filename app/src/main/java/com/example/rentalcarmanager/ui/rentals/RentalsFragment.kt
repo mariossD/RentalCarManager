@@ -1,6 +1,9 @@
 package com.example.rentalcarmanager.ui.rentals
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +13,9 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -60,8 +66,8 @@ class RentalsFragment : Fragment() {
               carMap,
               customerMap,
               branchMap,
-              onItemClick = { rental -> upsertRental(rental) }, // Edit rental
-              onDeleteClick = { rental -> deleteRental(rental) } // Delete rental
+              onItemClick = { rental -> upsertRental(rental) },
+              onDeleteClick = { rental -> deleteRental(rental) }
             )
 
             // Setup RecyclerView with adapter
@@ -86,6 +92,7 @@ class RentalsFragment : Fragment() {
   }
 
   // Show dialog for adding or editing a rental
+  @SuppressLint("MissingPermission")
   private fun upsertRental(existingRental: RentalFirestore? = null) {
     val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.upsert_rental, null)
 
@@ -96,7 +103,7 @@ class RentalsFragment : Fragment() {
     val rentalDateEditText = dialogView.findViewById<EditText>(R.id.editTextRentalDate)
     val returnDateEditText = dialogView.findViewById<EditText>(R.id.editTextRentalReturn)
 
-    // Variables to store selected values
+    // Selected values
     var selectedBranchId = existingRental?.branchId ?: -1
     var selectedCarId = existingRental?.carId ?: -1
     var selectedCustomerId = existingRental?.customerId ?: -1
@@ -105,7 +112,7 @@ class RentalsFragment : Fragment() {
     var selectedRentalDate: String? = null
     var selectedReturnDate: String? = null
 
-    // Function that filters available cars based on date and branch
+    // Load available cars based on date and branch
     fun availableCars() {
       val start = selectedRentalDate
       val end = selectedReturnDate
@@ -114,7 +121,7 @@ class RentalsFragment : Fragment() {
         val startDate = dateFormat.parse(start)
         val endDate = dateFormat.parse(end)
 
-        // Exclude cars that are already rented in the selected date range
+        // Exclude cars that are already rented during the selected period
         val unavailableCarIds = viewModel.rentals.value.filter { rental ->
           if (existingRental != null && rental.id == existingRental.id) return@filter false
           val rStart = dateFormat.parse(rental.rentalDate)
@@ -126,7 +133,6 @@ class RentalsFragment : Fragment() {
           car.branchId == selectedBranchId && !unavailableCarIds.contains(car.id)
         }
 
-        // Handle empty or available car list in dropdown
         if (availableCars.isEmpty()) {
           carDropdown.setText("")
           carDropdown.setAdapter(
@@ -144,19 +150,14 @@ class RentalsFragment : Fragment() {
           selectedCarId = availableCars[pos].id
         }
 
-        // If editing an existing rental, pre-select the correct car
         if (existingRental != null) {
           val match = availableCars.find { it.id == existingRental.carId }
-          if (match != null) {
-            carDropdown.setText("${match.brand} ${match.model}", false)
-          } else {
-            carDropdown.setText("", false)
-          }
+          carDropdown.setText(match?.let { "${it.brand} ${it.model}" } ?: "", false)
         }
       }
     }
 
-    // Show date picker for rental and return dates
+    // Show Material date picker and update dates
     val datePicker = { editText: EditText, tag: String ->
       val picker = com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker()
         .setTitleText(tag)
@@ -173,7 +174,7 @@ class RentalsFragment : Fragment() {
     rentalDateEditText.setOnClickListener { datePicker(rentalDateEditText, "rental_date") }
     returnDateEditText.setOnClickListener { datePicker(returnDateEditText, "return_date") }
 
-    // Load branch options from Room and populate dropdown
+    // Populate dropdowns for branches and customers
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.allBranches.collectLatest { branches ->
         val items = branches.map { it.name }
@@ -188,7 +189,6 @@ class RentalsFragment : Fragment() {
       }
     }
 
-    // Load customer options from Room and populate dropdown
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.allcustomers.collectLatest { customers ->
         val items = customers.map { it.customersName }
@@ -200,7 +200,7 @@ class RentalsFragment : Fragment() {
       }
     }
 
-    // Pre-fill date fields if editing
+    // Pre-fill dates if editing
     existingRental?.let {
       selectedRentalDate = it.rentalDate
       selectedReturnDate = it.returnDate
@@ -208,25 +208,18 @@ class RentalsFragment : Fragment() {
       returnDateEditText.setText(it.returnDate)
     }
 
-    // Build and show dialog
-    val dialog = AlertDialog.Builder(requireContext())
-      .setView(dialogView)
-      .create()
+    val dialog = AlertDialog.Builder(requireContext()).setView(dialogView).create()
 
     val buttonSave = dialogView.findViewById<Button>(R.id.buttonSaveRental)
     val buttonCancel = dialogView.findViewById<Button>(R.id.buttonCancelRental)
 
-    // Close dialog without saving
-    buttonCancel.setOnClickListener {
-      dialog.dismiss()
-    }
+    buttonCancel.setOnClickListener { dialog.dismiss() }
 
-    // Save or update rental in Firestore when user clicks save
+    // Save or update rental to Firestore
     buttonSave.setOnClickListener {
       val rentalDate = selectedRentalDate
       val returnDate = selectedReturnDate
 
-      // Basic form validation
       if (rentalDate.isNullOrBlank() || returnDate.isNullOrBlank()) {
         Toast.makeText(requireContext(), "Please select both dates", Toast.LENGTH_SHORT).show()
         return@setOnClickListener
@@ -242,7 +235,6 @@ class RentalsFragment : Fragment() {
         return@setOnClickListener
       }
 
-      // Create rental object and push to Firestore
       val id = existingRental?.id ?: UUID.randomUUID().toString()
       val rental = RentalFirestore(
         id = id,
@@ -258,6 +250,9 @@ class RentalsFragment : Fragment() {
         .addOnSuccessListener {
           Toast.makeText(requireContext(), "Rental saved successfully", Toast.LENGTH_SHORT).show()
           viewModel.loadRentalsFromFirestore()
+          requireContext().sendRentalNotification(
+            viewModel.allcustomers.value.find { it.id == selectedCustomerId }?.customersName ?: "Unknown"
+          )
           dialog.dismiss()
         }
         .addOnFailureListener {
@@ -268,20 +263,17 @@ class RentalsFragment : Fragment() {
     dialog.show()
   }
 
-  // Show dialog for confirming deletion of rental
+  // Show confirmation dialog to delete a rental
   private fun deleteRental(rental: RentalFirestore) {
     val view = LayoutInflater.from(requireContext()).inflate(R.layout.delete_rental, null)
 
-    val dialog = AlertDialog.Builder(requireContext())
-      .setView(view)
-      .create()
+    val dialog = AlertDialog.Builder(requireContext()).setView(view).create()
 
     val buttonDelete = view.findViewById<Button>(R.id.buttonDelete)
     val buttonCancel = view.findViewById<Button>(R.id.buttonCancel)
 
     buttonDelete.setOnClickListener {
-      FirebaseFirestore.getInstance()
-        .collection("rentals")
+      FirebaseFirestore.getInstance().collection("rentals")
         .document(rental.id)
         .delete()
         .addOnSuccessListener {
@@ -294,11 +286,21 @@ class RentalsFragment : Fragment() {
         }
     }
 
-    buttonCancel.setOnClickListener {
-      dialog.dismiss()
-    }
+    buttonCancel.setOnClickListener { dialog.dismiss() }
 
     dialog.show()
+  }
+
+  // Send a local notification about a new rental (requires POST_NOTIFICATIONS permission)
+  @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+  fun Context.sendRentalNotification(customerName: String) {
+    val builder = NotificationCompat.Builder(this, "rentals_channel")
+      .setSmallIcon(R.drawable.drawer_main_icon)
+      .setContentTitle("New Rental Created")
+      .setContentText("Customer: $customerName")
+      .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+    NotificationManagerCompat.from(this).notify(1001, builder.build())
   }
 
   override fun onDestroyView() {

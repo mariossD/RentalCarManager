@@ -25,7 +25,7 @@ class QueryFragment : Fragment() {
 
   private val viewModel: QueryViewModel by viewModels()
 
-  private lateinit var roomAdapter: QueryAdapter
+  private lateinit var roomAdapter: QueryRoomAdapter
   private lateinit var firebaseAdapter: QueryFirebaseAdapter
 
   private var branchMap: Map<Int, String> = emptyMap()
@@ -40,28 +40,32 @@ class QueryFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
+    // Load car info for Firebase queries
     lifecycleScope.launch {
       viewModel.allCars.collectLatest { cars ->
         carMap = cars.associate { it.id to "${it.brand} ${it.model}" }
       }
     }
-    // Collect maps for mapping IDs to display names
+
+    // Load branches for mapping and room adapter initialization
     lifecycleScope.launch {
       viewModel.branches.collectLatest { branches ->
         branchMap = branches.associate { it.id to it.name }
-        roomAdapter = QueryAdapter(0, branchMap)
+        roomAdapter = QueryRoomAdapter(0, branchMap)
         binding.recyclerViewQueries.adapter = roomAdapter
       }
     }
 
+    // Load customers for Firebase queries
     lifecycleScope.launch {
       viewModel.customers.collectLatest { customers ->
         customerMap = customers.associate { it.id to it.customersName }
       }
     }
 
+    // Prepare Firebase adapter once data is available
     lifecycleScope.launch {
-      viewModel.rentals.collectLatest { rentals ->
+      viewModel.rentals.collectLatest {
         viewModel.branches.value.let { branches ->
           viewModel.allCars.value.let { cars ->
             carMap = cars.associate { it.id to "${it.brand} ${it.model}" }
@@ -73,15 +77,12 @@ class QueryFragment : Fragment() {
 
     binding.recyclerViewQueries.layoutManager = LinearLayoutManager(requireContext())
 
-    binding.roomQuery.setOnClickListener {
-      showRoomDialog()
-    }
-
-    binding.firebaseQuery.setOnClickListener {
-      showFirebaseDialog()
-    }
+    // Button listeners
+    binding.roomQuery.setOnClickListener { showRoomDialog() }
+    binding.firebaseQuery.setOnClickListener { firebaseQuery() }
   }
 
+  // Dialog for Room-based local queries
   private fun showRoomDialog() {
     val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.room_query, null)
 
@@ -100,6 +101,7 @@ class QueryFragment : Fragment() {
     dropdownQuery.setOnItemClickListener { _, _, position, _ ->
       selectedQueryId = position + 1
 
+      // Load values for the selected query type
       lifecycleScope.launch {
         when (selectedQueryId) {
           1 -> viewModel.branches.collectLatest {
@@ -146,7 +148,8 @@ class QueryFragment : Fragment() {
     dialog.show()
   }
 
-  private fun showFirebaseDialog() {
+  // Dialog for Firebase-based rental queries
+  private fun firebaseQuery() {
     val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.room_query, null)
 
     val dropdownQuery = dialogView.findViewById<AutoCompleteTextView>(R.id.dropdown_select_query)
@@ -221,14 +224,12 @@ class QueryFragment : Fragment() {
             binding.recyclerViewQueries.adapter = firebaseAdapter
           }
         }
-
-        dialog.dismiss()
       }
+      dialog.dismiss()
     }
 
     dialog.show()
   }
-
 
   override fun onDestroyView() {
     super.onDestroyView()

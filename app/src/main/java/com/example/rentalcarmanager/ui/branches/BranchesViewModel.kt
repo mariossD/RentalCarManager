@@ -11,21 +11,24 @@ import kotlinx.coroutines.launch
 
 class BranchesViewModel() : ViewModel() {
 
-  private val repository=BranchesRepo
+  private val repository = BranchesRepo
 
+  // Collect all branches as a StateFlow for UI observation
   val allBranches: StateFlow<List<Branches>> = repository.getAllBranches()
     .stateIn(
-      viewModelScope,
-      SharingStarted.WhileSubscribed(5000),
-      emptyList()
+      viewModelScope, // Scope tied to ViewModel lifecycle
+      SharingStarted.WhileSubscribed(5000), // Keep the flow alive briefly when not observed
+      emptyList() // Initial empty state
     )
 
+  // Insert or update a branch
   fun upsertBranch(branch: Branches) {
     viewModelScope.launch {
       repository.upsertBranches(branch)
     }
   }
 
+  // Delete a branch
   fun deleteBranch(branch: Branches) {
     viewModelScope.launch {
       repository.deleteBranches(branch)

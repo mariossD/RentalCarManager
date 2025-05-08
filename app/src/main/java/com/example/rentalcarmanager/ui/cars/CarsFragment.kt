@@ -42,9 +42,7 @@ class CarsFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-
-
-    // Ο adapter που χειρίζεται το RecyclerView, με δυνατότητα click για επεξεργασία
+    // Adapter for RecyclerView with click handling for edit and delete
     carAdapter = CarsAdapter(
       onItemClick = { selectedCar ->
         upsertCar(selectedCar)
@@ -59,7 +57,7 @@ class CarsFragment : Fragment() {
     setupButton()
   }
 
-  // Συλλογή όλων των αυτοκινήτων από το ViewModel
+  // Collect all cars from the ViewModel
   private fun observeCars() {
     viewLifecycleOwner.lifecycleScope.launch {
       viewModel.allCars.collectLatest { cars ->
@@ -68,7 +66,7 @@ class CarsFragment : Fragment() {
     }
   }
 
-  // Εμφάνιση των αυτοκινήτων σε Grid 2 στηλών
+  // Display cars in a 2-column grid layout
   private fun setupRecyclerView() {
     binding.recyclerView.apply {
       layoutManager = GridLayoutManager(requireContext(), 2)
@@ -76,7 +74,7 @@ class CarsFragment : Fragment() {
     }
   }
 
-  // Κουμπί για προσθήκη νέου αυτοκινήτου
+  // Button to add a new car
   private fun setupButton() {
     binding.buttonAddCustomer.setOnClickListener {
       upsertCar()
@@ -88,6 +86,7 @@ class CarsFragment : Fragment() {
     _binding = null
   }
 
+  // Show dialog to add or update a car
   private fun upsertCar(car: Cars? = null) {
     context?.let { safeContext ->
       val dialogView = LayoutInflater.from(safeContext).inflate(R.layout.upsert_car, null)
@@ -116,7 +115,7 @@ class CarsFragment : Fragment() {
 
       var selectedBranchId = car?.branchId ?: -1
 
-      // Load branches
+      // Load branches and bind to dropdown
       lifecycleScope.launch {
         BranchesRepo.getAllBranches().collectLatest { branches ->
           val branchNames = branches.map { it.name }
@@ -125,7 +124,7 @@ class CarsFragment : Fragment() {
             selectedBranchId = branches[pos].id
           }
 
-          // Pre-fill if editing
+          // Pre-fill branch if editing
           if (car != null) {
             val current = branches.find { it.id == car.branchId }
             current?.let {
@@ -170,7 +169,7 @@ class CarsFragment : Fragment() {
           viewModel.upsertCar(newCar)
           dialog.dismiss()
         } else {
-          Toast.makeText(requireContext(), "Συμπλήρωσε όλα τα πεδία", Toast.LENGTH_SHORT).show()
+          Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
         }
       }
 
@@ -178,6 +177,7 @@ class CarsFragment : Fragment() {
     }
   }
 
+  // Show confirmation dialog for deleting a car
   private fun deleteCar(car: Cars) {
     val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.delete_car, null)
 
@@ -191,6 +191,7 @@ class CarsFragment : Fragment() {
     buttonDelete.setOnClickListener {
       viewModel.deleteCar(car)
       Toast.makeText(requireContext(), "Car deleted", Toast.LENGTH_SHORT).show()
+      dialog.dismiss()
 
     }
 
@@ -201,4 +202,3 @@ class CarsFragment : Fragment() {
     dialog.show()
   }
 }
-
