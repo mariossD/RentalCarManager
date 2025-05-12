@@ -13,17 +13,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.rentalcarmanager.R
-import com.example.rentalcarmanager.data.local.DatabaseProvider
 import com.example.rentalcarmanager.data.local.entity.Branches
-import com.example.rentalcarmanager.data.local.repository.BranchesRepo
 import com.example.rentalcarmanager.databinding.FragmentBranchesBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class BranchesFragment : Fragment() {
 
-  private var _binding: FragmentBranchesBinding? = null
-  private val binding get() = _binding!!
+  private var branchesBinding: FragmentBranchesBinding? = null
+  private val binding get() = branchesBinding!!
 
   private val viewModel: BranchesViewModel by viewModels()
 
@@ -34,25 +32,26 @@ class BranchesFragment : Fragment() {
     savedInstanceState: Bundle?
   ): View {
     // Inflate the layout for this fragment
-    _binding = FragmentBranchesBinding.inflate(inflater, container, false)
+    branchesBinding = FragmentBranchesBinding.inflate(inflater, container, false)
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    // Initialize repository with DAO instance
-    BranchesRepo.init(DatabaseProvider.getDatabase(requireContext()).daoBranches())
 
-    // Initialize adapter with click handlers
+    setupBranchAdapter()
+    setupRecyclerView()
+    observeBranches()
+    setupButton()
+  }
+
+  // Initialize adapter with click handlers
+  private fun setupBranchAdapter() {
     adapter = BranchesAdapter(
       onItemClick = { selectedBranch -> upsertBranch(selectedBranch) },
       onDeleteClick = { selectedBranch -> deleteBranch(selectedBranch) }
     )
-
-    setupRecyclerView()
-    observeBranches()
-    setupButton()
   }
 
   // Collect and observe branch data from the ViewModel
@@ -81,7 +80,7 @@ class BranchesFragment : Fragment() {
 
   override fun onDestroyView() {
     super.onDestroyView()
-    _binding = null
+    branchesBinding = null
   }
 
   // Show dialog to add or update a branch

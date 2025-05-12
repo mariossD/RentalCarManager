@@ -33,8 +33,8 @@ import java.util.UUID
 
 class RentalsFragment : Fragment() {
 
-  private var _binding: FragmentRentalsBinding? = null
-  private val binding get() = _binding!!
+  private var rentalsBinding: FragmentRentalsBinding? = null
+  private val binding get() = rentalsBinding!!
 
   // ViewModel to access rentals, cars, customers, and branches
   private val viewModel: RentalsViewModel by viewModels()
@@ -45,12 +45,14 @@ class RentalsFragment : Fragment() {
     savedInstanceState: Bundle?
   ): View {
     // Inflate layout using ViewBinding
-    _binding = FragmentRentalsBinding.inflate(inflater, container, false)
+    rentalsBinding = FragmentRentalsBinding.inflate(inflater, container, false)
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
+
+    setupAddRentalButton()
 
     // Observe local data from Room and remote data from Firestore
     lifecycleScope.launch {
@@ -84,12 +86,16 @@ class RentalsFragment : Fragment() {
         }
       }
     }
+  }
 
-    // Show dialog to add a new rental
+
+  // Show dialog to add a new rental
+  private fun setupAddRentalButton() {
     binding.buttonAddRental.setOnClickListener {
       upsertRental()
     }
   }
+
 
   // Show dialog for adding or editing a rental
   @SuppressLint("MissingPermission")
@@ -305,6 +311,6 @@ class RentalsFragment : Fragment() {
 
   override fun onDestroyView() {
     super.onDestroyView()
-    _binding = null // Clear view binding to avoid memory leaks
+    rentalsBinding = null // Clear view binding to avoid memory leaks
   }
 }

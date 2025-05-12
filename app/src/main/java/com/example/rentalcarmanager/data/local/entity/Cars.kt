@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
    entity = Branches::class,
    parentColumns = ["id"],
    childColumns = ["branchId"],
-   onDelete = androidx.room.ForeignKey.CASCADE
+   onDelete = ForeignKey.CASCADE
   )
  ]
 )

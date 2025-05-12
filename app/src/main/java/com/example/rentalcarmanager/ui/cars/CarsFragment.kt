@@ -24,25 +24,34 @@ import kotlinx.coroutines.launch
 
 class CarsFragment : Fragment() {
 
-  private var _binding: FragmentCarsBinding? = null
-  private val binding get() = _binding!!
+  private var carsBinding: FragmentCarsBinding? = null
+  private val binding get() = carsBinding!!
 
   private val viewModel: CarsViewModel by viewModels()
 
   private lateinit var carAdapter: CarsAdapter
 
+
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    _binding = FragmentCarsBinding.inflate(inflater, container, false)
+    carsBinding = FragmentCarsBinding.inflate(inflater, container, false)
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    // Adapter for RecyclerView with click handling for edit and delete
+    setupCarAdapter()
+    setupRecyclerView()
+    observeCars()
+    setupButton()
+  }
+
+
+  // Adapter for RecyclerView with click handling for edit and delete
+  private fun setupCarAdapter() {
     carAdapter = CarsAdapter(
       onItemClick = { selectedCar ->
         upsertCar(selectedCar)
@@ -52,9 +61,6 @@ class CarsFragment : Fragment() {
       }
     )
 
-    setupRecyclerView()
-    observeCars()
-    setupButton()
   }
 
   // Collect all cars from the ViewModel
@@ -79,11 +85,6 @@ class CarsFragment : Fragment() {
     binding.buttonAddCustomer.setOnClickListener {
       upsertCar()
     }
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
   }
 
   // Show dialog to add or update a car
@@ -201,4 +202,11 @@ class CarsFragment : Fragment() {
 
     dialog.show()
   }
+
+  override fun onDestroyView() {
+    super.onDestroyView()
+    carsBinding = null
+  }
 }
+
+

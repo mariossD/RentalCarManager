@@ -20,31 +20,35 @@ import kotlinx.coroutines.launch
 
 class CustomersFragment : Fragment() {
 
-  private var _binding: FragmentCustomersBinding? = null
-  private val binding get() = _binding!!
+  private var customersBinding: FragmentCustomersBinding? = null
+  private val binding get() = customersBinding!!
 
   private lateinit var customerAdapter: CustomersAdapter
 
   private val viewModel: CustomersViewModel by viewModels()
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-    _binding = FragmentCustomersBinding.inflate(inflater, container, false)
+    customersBinding = FragmentCustomersBinding.inflate(inflater, container, false)
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
 
-    // Initialize adapter with click listeners
-    customerAdapter = CustomersAdapter(
-      onItemClick = { selectedCustomer -> upsertCustomer(selectedCustomer) },
-      onDeleteClick = { selectedCustomer -> deleteCustomer(selectedCustomer) }
-    )
-
+    setupCustomerAdapter()
     setupRecyclerView()
     observeCustomers()
     setupButton()
   }
+
+  // Initialize adapter with click listeners
+  private fun setupCustomerAdapter() {
+    customerAdapter = CustomersAdapter(
+      onItemClick = { selectedCustomer -> upsertCustomer(selectedCustomer) },
+      onDeleteClick = { selectedCustomer -> deleteCustomer(selectedCustomer) }
+    )
+  }
+
 
   // Set up add button click
   private fun setupButton() {
@@ -52,6 +56,7 @@ class CustomersFragment : Fragment() {
       upsertCustomer()
     }
   }
+
 
   // Set up RecyclerView layout and adapter
   private fun setupRecyclerView() {
@@ -139,6 +144,6 @@ class CustomersFragment : Fragment() {
 
   override fun onDestroyView() {
     super.onDestroyView()
-    _binding = null
+    customersBinding = null
   }
 }
